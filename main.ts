@@ -18,4 +18,12 @@ if (!/\S/.test(entry)) {
   throw new Error("entry must not be only whitespace");
 }
 
-fs.writeFileSync(path.join(outDir, "entry.txt"), entry, "utf8");
+if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(entry)) {
+  throw new Error("entry must not contain control characters");
+}
+
+const outPath = path.join(outDir, "entry.txt");
+fs.writeFileSync(outPath, entry, "utf8");
+if (fs.readFileSync(outPath, "utf8") !== entry) {
+  throw new Error("entry.txt read-back mismatch");
+}
